@@ -1,0 +1,1 @@
+python evaluation.py --model 'bert' --ckpt './VisSalFormer_weights.tar' --device 'cuda'
