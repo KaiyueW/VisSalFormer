@@ -10,7 +10,7 @@ from pathlib import Path
 
 def evaluation(Model:str, ckpt: str, device, batch_size:int):
     eps=1e-10
-
+    # select different text encoders
     if Model == 'llama':
         from model_llama import SalFormer
         from transformers import LlamaModel
@@ -26,7 +26,7 @@ def evaluation(Model:str, ckpt: str, device, batch_size:int):
         llm = BloomModel.from_pretrained("bigscience/bloom-3b")
         neuron_n = 2560
         print('BloomModel loaded')
-    elif Model == 'bert':
+    elif Model == 'bert': # text encoder
         from model_swin import SalFormer
         from transformers import BertModel
         from tokenizer_bert import padding_fn
@@ -50,7 +50,7 @@ def evaluation(Model:str, ckpt: str, device, batch_size:int):
         model = SalFormer(vit, llm, neuron_n = neuron_n).to(device)
 
     checkpoint = torch.load(ckpt)
-    model.load_state_dict(checkpoint['model_state_dict'])
+    model.load_state_dict(checkpoint['model_state_dict']) #load trained weights
     model.eval()
 
 
@@ -58,28 +58,28 @@ def evaluation(Model:str, ckpt: str, device, batch_size:int):
     kl_loss = torch.nn.KLDivLoss(reduction="batchmean", log_target=True)
 
     test_kl, test_cc, test_nss = 0,0,0 
-    for batch, (img, input_ids, fix, hm, name) in enumerate(test_dataloader):
+    for batch, (img, input_ids, fix, hm, name) in enumerate(test_dataloader): #for each example in the test dataset
         img = img.to(device)
         input_ids = input_ids.to(device)
         fix = fix.to(device)
         hm = hm.to(device)
 
-        y = model(img, input_ids)
+        y = model(img, input_ids) # predicted saliency map
         
         y_sum = y.view(y.shape[0], -1).sum(1, keepdim=True)
-        y_distribution = y / (y_sum[:, :, None, None] + eps)
+        y_distribution = y / (y_sum[:, :, None, None] + eps) #predicted map
 
         hm_sum = hm.view(y.shape[0], -1).sum(1, keepdim=True)
         hm_distribution = hm / (hm_sum[:, :, None, None] + eps)
         hm_distribution = hm_distribution + eps
-        hm_distribution = hm_distribution / (1+eps)
+        hm_distribution = hm_distribution / (1+eps) #Ground truth map
 
         if fix.sum() != 0:
             normal_y = (y-y.mean())/y.std()
             nss = torch.sum(normal_y*fix)/fix.sum()
         else:
             nss = torch.Tensor([0.0]).to(device)
-        kl = kl_loss(torch.log(y_distribution), torch.log(hm_distribution))
+        kl = kl_loss(torch.log(y_distribution), torch.log(hm_distribution)) #difference btw y and hm dist
 
         vy = y - torch.mean(y)
         vhm = hm - torch.mean(hm)  
@@ -87,14 +87,15 @@ def evaluation(Model:str, ckpt: str, device, batch_size:int):
         if (torch.sqrt(torch.sum(vy ** 2)) * torch.sqrt(torch.sum(vhm ** 2))) != 0:
             cc = torch.sum(vy * vhm) / (torch.sqrt(torch.sum(vy ** 2)) * torch.sqrt(torch.sum(vhm ** 2)))
         else: 
-            cc = torch.Tensor([0.0]).to(device)
+            cc = torch.Tensor([0.0]).to(device) #correlation coefficient
         
+        # get the mean metrics for the whole test dataset
         test_kl += kl.item()/len(test_dataloader)
         test_cc += cc.item()/len(test_dataloader)
         test_nss += nss.item()/len(test_dataloader)
 
         for i in range(0, y.shape[0]):
-            save_image(y[i], f"./eval_results/{name[i]}")
+            save_image(y[i], f"./eval_results/{name[i]}") #save predicted saliency map
 
     print("kl:", test_kl, "cc", test_cc, "nss", test_nss)
 
