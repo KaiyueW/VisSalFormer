@@ -2,7 +2,7 @@ import torch
 from transformers import AutoTokenizer
 
 # tokenizer = AutoTokenizer.from_pretrained("roberta-base")
-tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", cache_dir="/tmp/kwang67_cache")
 print('bert-base-uncased tokenizer loaded')
 
 def padding_fn(data): # use BERT encoder to convert questions into language embeddings.

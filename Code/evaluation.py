@@ -30,7 +30,7 @@ def evaluation(Model:str, ckpt: str, device, batch_size:int):
         from model_swin import SalFormer
         from transformers import BertModel
         from tokenizer_bert import padding_fn
-        llm = BertModel.from_pretrained("bert-base-uncased")
+        llm = BertModel.from_pretrained("bert-base-uncased", cache_dir="/tmp/kwang67_cache")
         print('BertModel loaded')
     else:
         print('model not available, possiblilities: llama, bloom, bert')
@@ -41,7 +41,7 @@ def evaluation(Model:str, ckpt: str, device, batch_size:int):
     Path('./eval_results').mkdir(parents=True, exist_ok=True)
 
     # vit = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k")
-    vit = SwinModel.from_pretrained("microsoft/swin-tiny-patch4-window7-224")
+    vit = SwinModel.from_pretrained("microsoft/swin-tiny-patch4-window7-224", cache_dir="/tmp/kwang67_cache")
     # vit = timm.create_model('xception41p.ra3_in1k', pretrained=True)
 
     if Model == 'bert':

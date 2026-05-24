@@ -1,1 +1,1 @@
-python evaluation.py --model 'bert' --ckpt './VisSalFormer_weights.tar' --device 'cuda'
+python3 Code/evaluation.py --model 'bert' --ckpt './VisSalFormer_weights.tar' --device 'cuda'
