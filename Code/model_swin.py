@@ -91,12 +91,13 @@ class SalFormer(torch.nn.Module):
 
     def forward(self, img, q_inputs):
 
-        img_features =  self.vit.forward(img, return_dict =True)["last_hidden_state"] # 最终输出
+        img_features =  self.vit.forward(img, return_dict =True)["last_hidden_state"] # 最终输出, [B, 50, 768]
         with torch.no_grad():
             text_features =  self.bert(**q_inputs)["last_hidden_state"] #size is [Batch, max_seq_len, 768]
             # text_features =  torch.unsqueeze(bert_output["last_hidden_state"][:,0,:], 1)
         text_features = self.cross_attention.forward(self.text_feature_query.repeat([text_features.shape[0], 1, 1]), text_features, text_features, need_weights=False)[0]
         # cross(Q, K, V), output is attention_weights：注意力分配表, 某个词对其他词的attn weights; attention_output: 加权融合后的新表示
+        # [B, 10, 768]
 
         fused_features = torch.concat((self.vision_head(img_features)+self.img_positional_embedding, self.text_head(text_features)+self.text_positional_embedding), 1) # fused into [Batch, 59, 768]
         att_fused_features = self.self_attetion.forward(fused_features, fused_features, fused_features, need_weights=False)[0]
@@ -112,6 +113,6 @@ class SalFormer(torch.nn.Module):
 
         latent_features = latent_features.permute(0,2,1)
         out = torch.reshape(latent_features, (features.shape[0], self.feature_dim, 7, 7)) # 7*7*768
-        out = self.decoder(out)
+        out = self.decoder(out) #[B, 1, 128, 128]
 
         return out

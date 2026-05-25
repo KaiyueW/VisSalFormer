@@ -7,29 +7,45 @@ from dataset_new import ImagesWithSaliency
 from torchvision.utils import save_image
 from transformers import SwinModel
 from pathlib import Path
+import numpy as np
+from PIL import Image
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
+def save_overlay(original_img_tensor, saliency_tensor, save_path):
+    """
+    original_img_tensor: [3, H, W] normalized tensor
+    saliency_tensor:     [1, H, W] 0~1 tensor
+    """
+    # 反归一化原图
+    mean = torch.tensor([0.485, 0.456, 0.406]).view(3,1,1)
+    std  = torch.tensor([0.229, 0.224, 0.225]).view(3,1,1)
+    img = original_img_tensor.cpu() * std + mean
+    img = img.permute(1,2,0).numpy()
+    img = np.clip(img, 0, 1)
+
+    # saliency map → colormap
+    sal = saliency_tensor.squeeze().cpu().numpy()  # [H, W]
+    sal = (sal - sal.min()) / (sal.max() - sal.min() + 1e-10)  # 归一化到0~1
+    heatmap = cm.jet(sal)[:, :, :3]  # [H, W, 3], 去掉alpha通道
+
+    # resize heatmap到原图尺寸
+    heatmap_pil = Image.fromarray((heatmap * 255).astype(np.uint8))
+    heatmap_pil = heatmap_pil.resize((img.shape[1], img.shape[0]), Image.BILINEAR)
+    heatmap = np.array(heatmap_pil) / 255.0
+
+    # overlay
+    overlay = 0.5 * img + 0.5 * heatmap
+    overlay = np.clip(overlay, 0, 1)
+
+    plt.imsave(save_path, overlay)
 
 def evaluation(Model:str, ckpt: str, device, batch_size:int):
-    eps=1e-10
-    # select different text encoders
-    if Model == 'llama':
-        from model_llama import SalFormer
-        from transformers import LlamaModel
-        from tokenizer_llama import padding_fn
-        # llm = LlamaModel.from_pretrained("Enoch/llama-7b-hf", low_cpu_mem_usage=True)
-        llm = LlamaModel.from_pretrained("daryl149/Llama-2-7b-chat-hf", low_cpu_mem_usage=True)
-        neuron_n = 4096
-        print("llama loaded")
-    elif Model == 'bloom':
-        from model_llama import SalFormer
-        from transformers import BloomModel
-        from tokenizer_bloom import padding_fn
-        llm = BloomModel.from_pretrained("bigscience/bloom-3b")
-        neuron_n = 2560
-        print('BloomModel loaded')
-    elif Model == 'bert': # text encoder
-        from model_swin import SalFormer
-        from transformers import BertModel
-        from tokenizer_bert import padding_fn
+    from model_swin import SalFormer
+    from transformers import BertModel
+    from tokenizer_bert import padding_fn
+    
+    if Model == 'bert': # text encoder
         llm = BertModel.from_pretrained("bert-base-uncased", cache_dir="/tmp/kwang67_cache")
         print('BertModel loaded')
     else:
@@ -38,67 +54,29 @@ def evaluation(Model:str, ckpt: str, device, batch_size:int):
 
     test_set = ImagesWithSaliency("data/test.npy")
 
-    Path('./eval_results').mkdir(parents=True, exist_ok=True)
+    Path('./eval_result').mkdir(parents=True, exist_ok=True)
 
-    # vit = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k")
     vit = SwinModel.from_pretrained("microsoft/swin-tiny-patch4-window7-224", cache_dir="/tmp/kwang67_cache")
-    # vit = timm.create_model('xception41p.ra3_in1k', pretrained=True)
 
-    if Model == 'bert':
-        model = SalFormer(vit, llm).to(device)
-    else:
-        model = SalFormer(vit, llm, neuron_n = neuron_n).to(device)
-
+    model = SalFormer(vit, llm).to(device)
     checkpoint = torch.load(ckpt)
     model.load_state_dict(checkpoint['model_state_dict']) #load trained weights
     model.eval()
 
-
     test_dataloader = DataLoader(test_set, batch_size=batch_size, shuffle=False, collate_fn=padding_fn, num_workers=8)
-    kl_loss = torch.nn.KLDivLoss(reduction="batchmean", log_target=True)
 
-    test_kl, test_cc, test_nss = 0,0,0 
     for batch, (img, input_ids, fix, hm, name) in enumerate(test_dataloader): #for each example in the test dataset
         img = img.to(device)
         input_ids = input_ids.to(device)
-        fix = fix.to(device)
-        hm = hm.to(device)
 
-        y = model(img, input_ids) # predicted saliency map
-        
-        y_sum = y.view(y.shape[0], -1).sum(1, keepdim=True)
-        y_distribution = y / (y_sum[:, :, None, None] + eps) #predicted map
+        with torch.no_grad():
+            y = model(img, input_ids) # predicted saliency map
 
-        hm_sum = hm.view(y.shape[0], -1).sum(1, keepdim=True)
-        hm_distribution = hm / (hm_sum[:, :, None, None] + eps)
-        hm_distribution = hm_distribution + eps
-        hm_distribution = hm_distribution / (1+eps) #Ground truth map
-
-        if fix.sum() != 0:
-            normal_y = (y-y.mean())/y.std()
-            nss = torch.sum(normal_y*fix)/fix.sum()
-        else:
-            nss = torch.Tensor([0.0]).to(device)
-        kl = kl_loss(torch.log(y_distribution), torch.log(hm_distribution)) #difference btw y and hm dist
-
-        vy = y - torch.mean(y)
-        vhm = hm - torch.mean(hm)  
-
-        if (torch.sqrt(torch.sum(vy ** 2)) * torch.sqrt(torch.sum(vhm ** 2))) != 0:
-            cc = torch.sum(vy * vhm) / (torch.sqrt(torch.sum(vy ** 2)) * torch.sqrt(torch.sum(vhm ** 2)))
-        else: 
-            cc = torch.Tensor([0.0]).to(device) #correlation coefficient
-        
-        # get the mean metrics for the whole test dataset
-        test_kl += kl.item()/len(test_dataloader)
-        test_cc += cc.item()/len(test_dataloader)
-        test_nss += nss.item()/len(test_dataloader)
-
-        for i in range(0, y.shape[0]):
-            save_image(y[i], f"./eval_results/{name[i]}") #save predicted saliency map
-
-    print("kl:", test_kl, "cc", test_cc, "nss", test_nss)
-
+        for i in range(y.shape[0]):
+            save_overlay(img[i],                        # 原图tensor
+                y[i],                          # saliency map
+                f"./eval_result/{name[i]}"    # 保存路径
+            )
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
