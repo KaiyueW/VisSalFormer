@@ -1,1 +1,1 @@
-python Code/evaluation.py --model 'bert' --ckpt 'Code/VisSalFormer_weights.tar' --device 'cuda'
+python Code/evaluation.py --ckpt 'Code/VisSalFormer_weights.tar' --max_samples 50
