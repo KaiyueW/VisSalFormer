@@ -1,0 +1,352 @@
+[
+  {
+    "imgname": "10095.png",
+    "question": "Is the value of Favorable 38 in 2015?",
+    "gt_answer": "Yes",
+    "pred_answer": "Yes",
+    "heatmap": "10095_Q0.png"
+  },
+  {
+    "imgname": "10095.png",
+    "question": "How many values are below 40 in Unfavorable graph?",
+    "gt_answer": "6",
+    "pred_answer": "1",
+    "heatmap": "10095_Q1.png"
+  },
+  {
+    "imgname": "10149.png",
+    "question": "In which year the value was 51?",
+    "gt_answer": "2014",
+    "pred_answer": "2015",
+    "heatmap": "10149_Q0.png"
+  },
+  {
+    "imgname": "10149.png",
+    "question": "What is the sum favourable  value in the year 2014 and 2015?",
+    "gt_answer": "95",
+    "pred_answer": "2014: 45, 2015: 45",
+    "heatmap": "10149_Q1.png"
+  },
+  {
+    "imgname": "10154.png",
+    "question": "In which year the Mexican governments campaign against drugs traffickers is making 47 percent progress?",
+    "gt_answer": "2012",
+    "pred_answer": "2013",
+    "heatmap": "10154_Q0.png"
+  },
+  {
+    "imgname": "10154.png",
+    "question": "What is the sum of making progress ,losing ground and same in the year 2011?",
+    "gt_answer": "99",
+    "pred_answer": "60",
+    "heatmap": "10154_Q1.png"
+  },
+  {
+    "imgname": "10183.png",
+    "question": "How many intercepting point(s) is/are there?",
+    "gt_answer": "1",
+    "pred_answer": "1",
+    "heatmap": "10183_Q0.png"
+  },
+  {
+    "imgname": "10183.png",
+    "question": "Which year has the most divergent opinions about Brazil's economy?",
+    "gt_answer": "2015",
+    "pred_answer": "2015",
+    "heatmap": "10183_Q1.png"
+  },
+  {
+    "imgname": "10184.png",
+    "question": "Which line contains smaller values across all years?",
+    "gt_answer": "Unfavorable",
+    "pred_answer": "Unfavorable",
+    "heatmap": "10184_Q0.png"
+  },
+  {
+    "imgname": "10184.png",
+    "question": "Deduct the most unfavorable view from the most favorable view?",
+    "gt_answer": "49",
+    "pred_answer": "Unfavorable",
+    "heatmap": "10184_Q1.png"
+  },
+  {
+    "imgname": "10197.png",
+    "question": "What's the rightmost value dark brown graph?",
+    "gt_answer": "47",
+    "pred_answer": "45",
+    "heatmap": "10197_Q0.png"
+  },
+  {
+    "imgname": "10197.png",
+    "question": "How many values of dark brown graph exceed 40?",
+    "gt_answer": "5",
+    "pred_answer": "1",
+    "heatmap": "10197_Q1.png"
+  },
+  {
+    "imgname": "10238.png",
+    "question": "Is the largest value of green bar 30?",
+    "gt_answer": "No",
+    "pred_answer": "No",
+    "heatmap": "10238_Q0.png"
+  },
+  {
+    "imgname": "10238.png",
+    "question": "Is the sum of highest and lowest value of orange graph greater than 60?",
+    "gt_answer": "Yes",
+    "pred_answer": "Yes",
+    "heatmap": "10238_Q1.png"
+  },
+  {
+    "imgname": "10239.png",
+    "question": "What is the color of graph whose lowest value is 35?",
+    "gt_answer": "Green",
+    "pred_answer": "Orange",
+    "heatmap": "10239_Q0.png"
+  },
+  {
+    "imgname": "10239.png",
+    "question": "What's the median value of green graph?",
+    "gt_answer": "75",
+    "pred_answer": "50",
+    "heatmap": "10239_Q1.png"
+  },
+  {
+    "imgname": "10240.png",
+    "question": "What's the rightmost value of orange graph?",
+    "gt_answer": "51",
+    "pred_answer": "70",
+    "heatmap": "10240_Q0.png"
+  },
+  {
+    "imgname": "10240.png",
+    "question": "Is the sum of leftmost value of green and smallest value of orange graph greater than 100?",
+    "gt_answer": "Yes",
+    "pred_answer": "Yes",
+    "heatmap": "10240_Q1.png"
+  },
+  {
+    "imgname": "10243.png",
+    "question": "What is the first data in orange line?",
+    "gt_answer": "41",
+    "pred_answer": "U.s. confidence",
+    "heatmap": "10243_Q0.png"
+  },
+  {
+    "imgname": "10243.png",
+    "question": "Which year the green line cut the orange line from top to down?",
+    "gt_answer": "2014",
+    "pred_answer": "2009",
+    "heatmap": "10243_Q1.png"
+  },
+  {
+    "imgname": "10305.png",
+    "question": "What is the data in Jul 2015 ( all two data)?",
+    "gt_answer": "[63, 26]",
+    "pred_answer": "2015",
+    "heatmap": "10305_Q0.png"
+  },
+  {
+    "imgname": "10305.png",
+    "question": "What is the average of Approve data?",
+    "gt_answer": "58",
+    "pred_answer": "50",
+    "heatmap": "10305_Q1.png"
+  },
+  {
+    "imgname": "10395.png",
+    "question": "What's the color of the graph with the 15 as the lowest value?",
+    "gt_answer": "Blue",
+    "pred_answer": "Blue",
+    "heatmap": "10395_Q0.png"
+  },
+  {
+    "imgname": "10395.png",
+    "question": "What's the the average of all the values below 30?",
+    "gt_answer": "19",
+    "pred_answer": "40",
+    "heatmap": "10395_Q1.png"
+  },
+  {
+    "imgname": "10430.png",
+    "question": "What's the rightmost value of orange graph?",
+    "gt_answer": "73",
+    "pred_answer": "56",
+    "heatmap": "10430_Q0.png"
+  },
+  {
+    "imgname": "10430.png",
+    "question": "What's the median value of orange graph?",
+    "gt_answer": "73",
+    "pred_answer": "50",
+    "heatmap": "10430_Q1.png"
+  },
+  {
+    "imgname": "10432.png",
+    "question": "What's the percentage of respondents who was upset on changing reactions to a gay child in 2015?",
+    "gt_answer": "0.39",
+    "pred_answer": "25",
+    "heatmap": "10432_Q0.png"
+  },
+  {
+    "imgname": "10432.png",
+    "question": "In which year the difference between Upset and Not upset graph is maximum?",
+    "gt_answer": "1985",
+    "pred_answer": "1990",
+    "heatmap": "10432_Q1.png"
+  },
+  {
+    "imgname": "10438.png",
+    "question": "What's the U.S. Hispanic population in 2000 (in millions)?",
+    "gt_answer": "35.7",
+    "pred_answer": "35",
+    "heatmap": "10438_Q0.png"
+  },
+  {
+    "imgname": "10438.png",
+    "question": "In how many years the U.S. Hispanic population was below 30 millions?",
+    "gt_answer": "3",
+    "pred_answer": "1990",
+    "heatmap": "10438_Q1.png"
+  },
+  {
+    "imgname": "10451.png",
+    "question": "In which year the value of orange graph is 36?",
+    "gt_answer": "2013",
+    "pred_answer": "2011",
+    "heatmap": "10451_Q0.png"
+  },
+  {
+    "imgname": "10451.png",
+    "question": "What's the median value of green graph from 2011 to 2015?",
+    "gt_answer": "61",
+    "pred_answer": "50",
+    "heatmap": "10451_Q1.png"
+  },
+  {
+    "imgname": "10452.png",
+    "question": "What's the rightmost value of dark green graph?",
+    "gt_answer": "15",
+    "pred_answer": "15",
+    "heatmap": "10452_Q0.png"
+  },
+  {
+    "imgname": "10452.png",
+    "question": "How many values in light green graph are equal?",
+    "gt_answer": "2",
+    "pred_answer": "1",
+    "heatmap": "10452_Q1.png"
+  },
+  {
+    "imgname": "10453.png",
+    "question": "What's the percentage of Indians who have no confidence in Obama to do the right thing regarding world affairs in 2014?",
+    "gt_answer": "15",
+    "pred_answer": "80",
+    "heatmap": "10453_Q0.png"
+  },
+  {
+    "imgname": "10453.png",
+    "question": "What's the average of all the values in 2015?",
+    "gt_answer": "33",
+    "pred_answer": "80",
+    "heatmap": "10453_Q1.png"
+  },
+  {
+    "imgname": "10468.png",
+    "question": "What's the leftmost value of green graph?",
+    "gt_answer": "44",
+    "pred_answer": "40",
+    "heatmap": "10468_Q0.png"
+  },
+  {
+    "imgname": "10468.png",
+    "question": "Is the sum of two lowest value of green graph greater than higest value of orange graph?",
+    "gt_answer": "Yes",
+    "pred_answer": "Yes",
+    "heatmap": "10468_Q1.png"
+  },
+  {
+    "imgname": "10498.png",
+    "question": "What's the lowest value of graph in 2015?",
+    "gt_answer": "8",
+    "pred_answer": "67",
+    "heatmap": "10498_Q0.png"
+  },
+  {
+    "imgname": "10498.png",
+    "question": "What's the product of all the values in 2015?",
+    "gt_answer": "19800",
+    "pred_answer": "100",
+    "heatmap": "10498_Q1.png"
+  },
+  {
+    "imgname": "10504.png",
+    "question": "What's the value of Bad graph in 2007?",
+    "gt_answer": "56",
+    "pred_answer": "40",
+    "heatmap": "10504_Q0.png"
+  },
+  {
+    "imgname": "10504.png",
+    "question": "Is the median of first three points of orange graph smaller than largest value of green graph?",
+    "gt_answer": "No",
+    "pred_answer": "Yes",
+    "heatmap": "10504_Q1.png"
+  },
+  {
+    "imgname": "10507.png",
+    "question": "What does the green line of data represent?",
+    "gt_answer": "Obama",
+    "pred_answer": "Merkel",
+    "heatmap": "10507_Q0.png"
+  },
+  {
+    "imgname": "10507.png",
+    "question": "What percentage does the data point for Obama have in 2009?",
+    "gt_answer": "0.37",
+    "pred_answer": "40",
+    "heatmap": "10507_Q1.png"
+  },
+  {
+    "imgname": "10523.png",
+    "question": "Based on the graph, do people have more confidence or no confidence?",
+    "gt_answer": "Confidence",
+    "pred_answer": "No confidence",
+    "heatmap": "10523_Q0.png"
+  },
+  {
+    "imgname": "10523.png",
+    "question": "What is the difference in data points in 2015?",
+    "gt_answer": "79",
+    "pred_answer": "2015",
+    "heatmap": "10523_Q1.png"
+  },
+  {
+    "imgname": "127.png",
+    "question": "What does the blue line represent?",
+    "gt_answer": "Dem/Lean Dem",
+    "pred_answer": "Democrat",
+    "heatmap": "127_Q0.png"
+  },
+  {
+    "imgname": "127.png",
+    "question": "When do blue lines reach their peak?",
+    "gt_answer": "2018",
+    "pred_answer": "2016",
+    "heatmap": "127_Q1.png"
+  },
+  {
+    "imgname": "1696.png",
+    "question": "What's the lowest value of red graph?",
+    "gt_answer": "70",
+    "pred_answer": "70",
+    "heatmap": "1696_Q0.png"
+  },
+  {
+    "imgname": "1696.png",
+    "question": "What's the ratio of Rep/Lean Rep in 2019 and Dem/Lean Dem in 2018?",
+    "gt_answer": "3.5",
+    "pred_answer": "0.38/0.48",
+    "heatmap": "1696_Q1.png"
+  }
+]

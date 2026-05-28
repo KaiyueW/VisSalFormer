@@ -66,7 +66,7 @@ def evaluation(ckpt: str, device: str, batch_size: int, img_dir: str, json_path:
     # concat several data entries into a batch after getting the dataset.
     # then feed them into the model to get batch_size saliency maps. Then feed another batch to the model to get the saliency maps.
 
-    Path('./eval_results').mkdir(parents=True, exist_ok=True)
+    Path('./saliency_maps').mkdir(parents=True, exist_ok=True)
     query_counter = defaultdict(int)
 
     for batch, (img, input_ids, imgnames, labels) in enumerate(test_dataloader): #for each example in the test dataset
@@ -79,7 +79,7 @@ def evaluation(ckpt: str, device: str, batch_size: int, img_dir: str, json_path:
         for i in range(preds.shape[0]):
             stem = os.path.splitext(imgnames[i])[0] #"chart001.png" → "chart001"
             q_idx = query_counter[stem]          # which query number of this img
-            save_path = f"./eval_results/{stem}_Q{q_idx}.png"
+            save_path = f"./saliency_maps/{stem}_Q{q_idx}.png"
             save_overlay(img[i], preds[i], save_path)
             query_counter[stem] += 1
         
