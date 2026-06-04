@@ -46,7 +46,7 @@ def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
                     "The second image is a saliency map highlighting regions relevant to the question.\n"
                     "Use the saliency map to guide your attention to answer the following question.\n"
                     f"Question: {question}"
-                    "Answer with only the final answer."
+                    "Answer with only the final answer, don't provide any explanation or reasoning steps."
                 }
             ]
         }
@@ -55,7 +55,9 @@ def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
             "role": "user",
             "content": [
                 {"type": "image", "image": chart_img},
-                {"type": "text", "text": f"Answer this question based on the chart with only the final answer: {question}"}
+                {"type": "text", "text": 
+                f"Answer this question based on the chart with only the final answer: {question}"
+                "Don't provide any explanation or reasoning steps."}
             ]
         }
 
@@ -160,10 +162,10 @@ def run_inference(model, samples, train_samples, setting, use_saliency):
 
         if setting == "zeroshot":
             prompt = build_prompt_zeroshot(question, chart_img, heatmap_img if use_saliency else None)
-            print(f"Sample {i+1} | {imgname} | setting: {setting}")
-            print(f"{'-'*60}")
-            print(prompt)
-            print(f"{'='*60}")
+            # print(f"Sample {i+1} | {imgname} | setting: {setting}")
+            # print(f"{'-'*60}")
+            # print(prompt)
+            # print(f"{'='*60}")
             predicted_answer = model.generate(prompt)
 
         elif setting == "fewshot":
@@ -195,7 +197,7 @@ def run_inference(model, samples, train_samples, setting, use_saliency):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", choices=["llava15", "internvl"], default="llava15")
+    parser.add_argument("--model", choices=["llava15", "chartr1", "internvl", "qwen3vl", "bespokeminchart"], default="llava15")
     parser.add_argument("--setting", choices=["zeroshot", "fewshot"],  default="zeroshot")
     parser.add_argument("--use_saliency", action="store_true")
     parser.add_argument("--max_samples",  type=int, default=MAX_SAMPLES)
@@ -224,4 +226,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# python inference.py --model llava15  --setting zeroshot --use_saliency
+# python inference.py --model chartr1  --setting zeroshot --use_saliency
