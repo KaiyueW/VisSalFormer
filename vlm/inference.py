@@ -15,13 +15,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from models import load_model
 
 # Paths 
-TRAIN_JSON      = "../ChartQA_data/test/test_human_preprocessed.json" # Note: we use the same test json for training samples in few-shot setting, but we will retrieve different questions for the same chart as examples.
-TEST_JSON       = "../ChartQA_data/test/test_human_preprocessed.json"
-TRAIN_IMG_DIR   = "../ChartQA_data/test/png"
-TEST_IMG_DIR    = "../ChartQA_data/test/png"
-TRAIN_HEATMAP   = "../saliency_maps/ChartQA_test"
-TEST_HEATMAP    = "../saliency_maps/ChartQA_test"
-MAX_SAMPLES     = 50
+TRAIN_JSON      = "../data/ChartQA_data/test/test_human_preprocessed.json" # Note: we use the same test json for training samples in few-shot setting, but we will retrieve different questions for the same chart as examples.
+TEST_JSON       = "../data/ChartQA_data/test/test_human_preprocessed.json"
+TRAIN_IMG_DIR   = "../data/ChartQA_data/test/png"
+TEST_IMG_DIR    = "../data/ChartQA_data/test/png"
+TRAIN_HEATMAP   = "../data/saliency_maps/ChartQA_test"
+TEST_HEATMAP    = "../data/saliency_maps/ChartQA_test"
+MAX_SAMPLES     = 100
+
 
 
 # Prompt builders 
@@ -30,8 +31,9 @@ def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
         "role": "system",
         "content": [
             {"type": "text", "text": 
-            "You are an agent who can analyze charts and answer questions based on the charts. "
-            "Provide a short, direct answer only."}
+            "You are an expert chart analysis assistant.\n"
+            "Your task is to provide the precise final answer to the user's question.\n"
+            "Only return the final answer in a concise format that directly answers the question.\n"}
             ]
     }
 
@@ -45,7 +47,7 @@ def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
                     "The first image is a chart. "
                     "The second image is a saliency map highlighting regions relevant to the question.\n"
                     "Use the saliency map to guide your attention to answer the following question.\n"
-                    f"Question: {question}"
+                    f"Question: {question}\n\n"
                     "Answer with only the final answer, don't provide any explanation or reasoning steps."
                 }
             ]
@@ -56,8 +58,8 @@ def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
             "content": [
                 {"type": "image", "image": chart_img},
                 {"type": "text", "text": 
-                f"Answer this question based on the chart with only the final answer: {question}"
-                "Don't provide any explanation or reasoning steps."}
+                f"Answer this question based on the chart: {question}\n\n"
+                "Your answer must contain ONLY the short final answer. Don't provide any explanation or reasoning steps."}
             ]
         }
 
@@ -155,6 +157,7 @@ def run_inference(model, samples, train_samples, setting, use_saliency):
         question  = sample["query"]
         gt_answer = sample["label"]
         is_numerical = sample["is_numerical"]
+        is_year = sample["is_year"]
         saliency_map = sample["saliency_map"] if use_saliency else None
 
         chart_img   = Image.open(os.path.join(TEST_IMG_DIR, imgname)).convert("RGB")
@@ -162,10 +165,12 @@ def run_inference(model, samples, train_samples, setting, use_saliency):
 
         if setting == "zeroshot":
             prompt = build_prompt_zeroshot(question, chart_img, heatmap_img if use_saliency else None)
-            # print(f"Sample {i+1} | {imgname} | setting: {setting}")
-            # print(f"{'-'*60}")
-            # print(prompt)
-            # print(f"{'='*60}")
+            #
+            print(f"Sample {i+1} | {imgname} | setting: {setting}")
+            print(f"{'-'*60}")
+            print(prompt)
+            print(f"{'='*60}")
+            #
             predicted_answer = model.generate(prompt)
 
         elif setting == "fewshot":
@@ -188,6 +193,7 @@ def run_inference(model, samples, train_samples, setting, use_saliency):
             "gt_answer":    gt_answer,
             "pred_answer":  predicted_answer,
             "is_numerical": is_numerical,
+            "is_year": is_year
             })
 
         if (i + 1) % 10 == 0:
@@ -204,7 +210,7 @@ def main():
     args = parser.parse_args()
 
     saliency_tag = "with_saliency" if args.use_saliency else "no_saliency"
-    output_path  = f"./hhhhh/{args.model}_{args.setting}_{saliency_tag}.json"
+    output_path  = f"./result_jsons/{args.model}_{args.setting}_{saliency_tag}.json"
 
     with open(TEST_JSON, "r") as f:
         samples = json.load(f)[:args.max_samples] # load test samples, samples[0]["imgname"] = "1.png"
@@ -217,7 +223,7 @@ def main():
     model   = load_model(args.model)
     results = run_inference(model, samples, train_samples, args.setting, args.use_saliency)
 
-    Path("./hhhhh").mkdir(parents=True, exist_ok=True)
+    Path("./result_jsons").mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"Saved to {output_path}")

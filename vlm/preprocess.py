@@ -9,9 +9,16 @@ def is_numerical(label: str) -> bool:
     except ValueError:
         return False
 
+def is_year(label: str) -> bool:
+    try:
+        num = float(label.replace(',', ''))
+        return 1900 <= num <= 2100 and float(int(num)) == num
+    except ValueError:
+        return False
 
-JSON_PATH   = "./ChartQA_data/test/test_human.json"
-OUTPUT_PATH = "./ChartQA_data/test/test_human_preprocessed.json"
+
+JSON_PATH   = "./data/ChartQA_data/test/test_human.json"
+OUTPUT_PATH = "./data/ChartQA_data/test/test_human_preprocessed.json"
 
 with open(JSON_PATH, "r") as f:
     data = json.load(f)
@@ -24,6 +31,7 @@ for item in data:
 
     item["is_numerical"]  = is_numerical(item["label"])
     item["saliency_map"]  = f"{stem}_Q{q_idx}.png"
+    item["is_year"]       = is_year(item["label"])
 
 with open(OUTPUT_PATH, "w") as f:
     json.dump(data, f, indent=2)
@@ -32,3 +40,4 @@ print(f"Done! Saved to {OUTPUT_PATH}")
 print(f"Total: {len(data)} items")
 print(f"Numerical: {sum(1 for item in data if item['is_numerical'])}")
 print(f"Non-numerical: {sum(1 for item in data if not item['is_numerical'])}")
+print(f"Year: {sum(1 for item in data if item['is_year'])}")

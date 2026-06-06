@@ -3,6 +3,11 @@ import re
 import argparse
 
 def extract_number(text: str) -> float:
+    first_line = text.split('\n')[0]
+    if '=' in first_line: 
+        text = first_line.split('=')[-1].strip() # if the answer is in format like "Answer = 42", extract the part after "="
+    else:
+        text = first_line.strip()
     match = re.search(r"[-+]?\d+(?:,\d{3})*(?:\.\d+)?%?", text)
     if match:
         num_str = match.group(0).replace(',', '')
@@ -11,17 +16,32 @@ def extract_number(text: str) -> float:
         except ValueError:
             return None
     return None
+
+def extract_text(pred: str) -> str:
+    pred = re.sub(r'<[^>]+>', '', pred).strip() # delete tags like </p>
+    first_line = pred.split('\n')[0].strip()
+    if ' (' in first_line:
+        first_line = first_line.split(' (')[0].strip()
+    if ',' in first_line:
+        first_line = first_line.split(',')[0].strip()
+    first_line = first_line.rstrip('.')
+    return first_line
     
-def is_correct(gt, pred, is_numerical):
+def is_correct(gt, pred, is_numerical, is_year):
     if is_numerical:
         gt_num = extract_number(gt)
         pred_num = extract_number(pred)
         print(f"-----Extracted numbers: GT={gt_num}, Pred={pred_num}")
         if gt_num is None or pred_num is None:
             return False
-        return abs(gt_num - pred_num) / (abs(gt_num) + 1e-9) <= 0.05
-    else:
-        return str(gt).strip().lower() == str(pred).strip().lower()
+        if is_year: # for year answers, allow absolute error of 1 year
+            return abs(gt_num - pred_num) <= 1
+        else: # allow 5% relative error for non-year numerical answers
+            return abs(gt_num - pred_num) / (abs(gt_num) + 1e-9) <= 0.05
+    else: 
+        pred_text = extract_text(pred)
+        print(f"-----Extracted text: GT={gt}, Pred={pred_text}")
+        return str(gt).strip().lower() == str(pred_text).strip().lower()
 
 
 def main():
@@ -44,11 +64,12 @@ def main():
         gt = result["gt_answer"]
         pred = result["pred_answer"]
         is_numerical = result["is_numerical"]
+        is_year = result["is_year"]
         i = i+1
         print("========================================================================")
-        print(f"-----Result {i}: gt_answer={gt}, pred_answer={pred}, is_numerical={is_numerical}")
-
-        correct = is_correct(gt, pred, is_numerical)
+        print(f"-----Result {i}: gt_answer={gt}, pred_answer={pred}, is_numerical={is_numerical}, is_year={is_year}")
+        
+        correct = is_correct(gt, pred, is_numerical, is_year)
         print(f"-----Correct: {correct}")
         total_correct += correct
 
