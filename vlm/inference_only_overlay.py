@@ -21,7 +21,7 @@ TRAIN_IMG_DIR   = "../data/ChartQA_data/test/png"
 TEST_IMG_DIR    = "../data/ChartQA_data/test/png"
 TRAIN_HEATMAP   = "../data/saliency_maps/ChartQA_test"
 TEST_HEATMAP    = "../testingggg/saliency_haha_0.5" # the saliency map dir for inference, you can change to the one you want.
-MAX_SAMPLES     = 100
+MAX_SAMPLES     = 30
 
 
 
