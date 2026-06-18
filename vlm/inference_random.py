@@ -28,39 +28,55 @@ MAX_SAMPLES     = 100
 
 # Prompt builders 
 def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
-    system = {
-        "role": "system",
-        "content": [
-            {"type": "text", "text": 
-            "You are an expert chart analysis assistant.\n"
-            "Your task is to provide the precise final answer to the user's question.\n"
-            "Only return the final answer in a concise format that directly answers the question.\n"}
-            ]
-    }
-
     if heatmap_img is not None:
+        system = {
+            "role": "system",
+            "content": [
+                {"type": "text", "text": 
+                "You are an expert chart question answering assistant.\n"
+                "You will be given a chart image and a saliency map overlaid on the chart.\n"
+                "The saliency map represents human attention when answering the question, highlighting regions humans are likely to focus on.\n"
+                "Prioritize information in highlighted regions when forming your answer.\n"
+                "Use only information in the chart. Do not use external knowledge or assumptions beyond the chart.\n"
+                "Return ONLY the final answer. Do not include explanation or reasoning.\n"
+                }
+            ]
+        }
+
         user = {
             "role": "user",
             "content": [
                 {"type": "image", "image": chart_img},
                 {"type": "image", "image": heatmap_img},
                 {"type": "text", "text": 
-                    "The first image is a chart. "
-                    "The second image is a saliency map highlighting regions relevant to the question.\n"
-                    "Use the saliency map to guide your attention to answer the following question.\n"
-                    f"Question: {question}\n\n"
-                    "Answer with only the final answer, don't provide any explanation or reasoning steps."
+                "The first image is a chart.\n"
+                "The second image is a saliency map overlaid on the chart, indicating regions likely relevant to the question.\n\n"
+                f"Question: {question}\n\n"
                 }
             ]
         }
     else:
+        system = {
+            "role": "system",
+            "content": [
+                {"type": "text", "text": 
+                "You are an expert chart question answering assistant.\n"
+                "You will be given a chart image.\n"
+                "Your task is to answer questions using only information in the chart.\n"
+                "Do not use external knowledge or assumptions beyond the chart.\n"
+                "Return ONLY the final answer. Do not include explanation or reasoning.\n"
+                }
+            ]
+        }
+            
         user = {
             "role": "user",
             "content": [
                 {"type": "image", "image": chart_img},
                 {"type": "text", "text": 
-                f"Answer this question based on the chart: {question}\n\n"
-                "Your answer must contain ONLY the short final answer. Don't provide any explanation or reasoning steps."}
+                "Answer the question based only on the chart image.\n"
+                f"Question: {question}\n\n"
+                }
             ]
         }
 
@@ -68,52 +84,69 @@ def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
 
 def build_prompt_fewshot(question: str, examples: list, chart_img, heatmap_img=None) -> list:
 
-    prompt = [{
-        "role": "system",
-        "content": [
-            {"type": "text", "text": 
-            "You are an expert chart analysis assistant.\n"
-            "Your task is to provide the precise final answer to the user's question.\n"
-            "Only return the final answer in a concise format that directly answers the question.\n"
-            "You will be given several examples for your reference before answering the final question."}
+    if heatmap_img is not None:
+        prompt = [{
+            "role": "system",
+            "content": [
+                {"type": "text", "text":
+                "You are an expert chart question answering assistant.\n"
+                "You will be given several examples, each containing a chart, a saliency map, a question, and a final answer.\n"
+                "The saliency map represents human attention when answering the question, highlighting regions humans are likely to focus on.\n"
+                "Use the saliency map as a visual attention guide for locating relevant regions in the chart.\n"
+                "Learn the mapping pattern from these examples and apply it to the final question.\n"
+                "Output ONLY the final answer. Do not include explanations or any extra text.\n"
+                }
             ]
-    }]
+        }]
 
-    for ex in examples:
-        user_content = []
+    else:
+        prompt = [{
+            "role": "system",
+            "content": [
+                {"type": "text", "text":
+                "You are an expert chart question answering assistant.\n"
+                "You will be given several examples, each containing a chart, a question, and a correct final answer.\n"
+                "Your task is to learn the pattern from the examples and answer the final question.\n"
+                "Only output the final answer. Do not include any explanation or extra text.\n"
+                }
+            ]
+        }]
+
+    user_content = []
+    for i, ex in enumerate(examples, start = 1):
         if heatmap_img is not None:
             user_content.append({"type": "image", "image": ex["chart_img"]})
             user_content.append({"type": "image", "image": ex["heatmap_img"]})
             user_content.append({"type": "text", "text":
-                "Given the chart and its saliency map which highlights the regions of the chart most relevant to the question. "
-                f"Answer the following question: {ex['query']}\n"})
+                f"Example {i}:\n"
+                "Given the chart and its saliency map, answer the following question.\n"
+                f"Question: {ex['query']}\n"
+                f"Answer: {ex['label']}\n"
+            })
+                
         else:
             user_content.append({"type": "image", "image": ex["chart_img"]})
             user_content.append({"type": "text", "text":
-                f"Given the chart, answer the following question: {ex['query']}\n"})
-        
-        prompt.append({"role": "user", 
-                       "content": user_content})
-
-        prompt.append({"role": "assistant",
-                        "content": [{"type": "text", "text": ex['label']}]})
-
-    user_content = []   
+                f"Example {i}:\n"
+                "Given the chart, answer the question.\n"
+                f"Question: {ex['query']}\n"
+                f"Answer: {ex['label']}\n"
+            })
+  
     if heatmap_img is not None:
         user_content.append({"type": "image", "image": chart_img})
         user_content.append({"type": "image", "image": heatmap_img})
         user_content.append({"type": "text", "text":
-            "Now, similar to the examples above.\n"
-            "Given this chart and its saliency map which highlights the regions of the chart most relevant to the question.\n"
-            "Use the saliency map to guide your attention to answer the following question.\n"
+            "Given the chart and its saliency map, answer the following question.\n"
             f"Question: {question}\n"
-            "Your answer must contain ONLY the short final answer. Don't provide any explanation or reasoning steps."})
+        })
+
     else:
         user_content.append({"type": "image", "image": chart_img})
         user_content.append({"type": "text", "text":
-            "Now, similar to the examples above, answer the following question based on the given chart.\n"
+            "Given the chart, answer the question.\n"
             f"Question: {question}\n"
-            "Your answer must contain ONLY the short final answer. Don't provide any explanation or reasoning steps."})
+        })
     
     prompt.append({"role": "user", "content": user_content})
 
@@ -122,14 +155,17 @@ def build_prompt_fewshot(question: str, examples: list, chart_img, heatmap_img=N
 
 # Few-shot example retrieval, here we simply retrieve other questions for the same chart.
 def retrieve_examples(train_samples, current_sample) -> list:
-    result = []
+    is_numerical = current_sample["is_numerical"]
+    is_year      = current_sample["is_year"]
 
-    s = random.choice(train_samples)
-    result.append(s)
-    print(f"Retrieved example for {current_sample['imgname']}: {s['imgname']}, {s['query']}, {s['label']}")
-    
-    return result # json item for the train examples with keys: "imgname", "query", "label", "is_numerical", "saliency_map" 
+    matching = [
+        s for s in train_samples
+        if s["is_numerical"] == is_numerical and s["is_year"] == is_year
+    ]
 
+    samples = random.sample(matching, 3)
+    print(f"Samples: {samples}")
+    return samples # json item for the train examples with keys: "imgname", "query", "label", "is_numerical", "saliency_map" 
 
 def load_example_images(examples, img_dir, heatmap_dir):
     loaded  = []
@@ -197,7 +233,7 @@ def main():
     args = parser.parse_args()
 
     saliency_tag = "with_saliency" if args.use_saliency else "no_saliency"
-    output_path  = f"./random/{args.model}_{args.setting}_{saliency_tag}.json"
+    output_path  = f"./updated/{args.model}_{args.setting}_{saliency_tag}.json"
 
     with open(TEST_JSON, "r") as f:
         samples = json.load(f)[:args.max_samples] # load test samples, samples[0]["imgname"] = "1.png"
@@ -210,7 +246,7 @@ def main():
     model   = load_model(args.model)
     results = run_inference(model, samples, train_samples, args.setting, args.use_saliency)
 
-    Path("./random").mkdir(parents=True, exist_ok=True)
+    Path("./updated").mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"Saved to {output_path}")
@@ -219,4 +255,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# python inference_random.py --model qwen3vl  --setting fewshot --use_saliency
+# python inference_random.py --model bespokeminchart  --setting zeroshot --use_saliency

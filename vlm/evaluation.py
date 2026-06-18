@@ -1,13 +1,28 @@
 import json
 import re
 import argparse
+from sympy import sympify, Number
+from sympy.core.sympify import SympifyError
+import editdistance
 
 def extract_number(text: str) -> float:
     first_line = text.split('\n')[0]
+    print(first_line)
     if '=' in first_line: 
         text = first_line.split('=')[-1].strip() # if the answer is in format like "Answer = 42", extract the part after "="
     else:
-        text = first_line.strip()
+        text = first_line.strip() # clean whitespace
+    print(f"text {text}")
+
+    try:
+        cleaned = text.replace(',', '').strip('%')
+        result = sympify(cleaned)
+        print(f"result {result}")
+        if result.is_number:
+            return float(result)
+    except (SympifyError, TypeError):
+        pass
+
     match = re.search(r"[-+]?\d+(?:,\d{3})*(?:\.\d+)?%?", text)
     if match:
         num_str = match.group(0).replace(',', '')
@@ -17,31 +32,62 @@ def extract_number(text: str) -> float:
             return None
     return None
 
+def build_gt_candidates(gt: float) -> list:
+    candidates = [gt]
+
+    if 0 < abs(gt) < 5: # gt = 0.19
+        candidates.append(gt * 100)
+    elif abs(gt) < 100: # gt = 19.22
+        candidates.append(gt / 100)  
+    return candidates
+
+def within_tolerance(gt_num: float, pred_num: float) -> bool:
+    return abs(gt_num - pred_num) / (abs(gt_num) + 1e-9) <= 0.05
+
 def extract_text(pred: str) -> str:
     pred = re.sub(r'<[^>]+>', '', pred).strip() # delete tags like </p>
     first_line = pred.split('\n')[0].strip()
-    if ' (' in first_line:
-        first_line = first_line.split(' (')[0].strip()
-    if ',' in first_line:
-        first_line = first_line.split(',')[0].strip()
-    first_line = first_line.rstrip('.')
     return first_line
     
+def is_textual_correct(gt, pred) -> bool:
+    gt_clean = str(gt).strip().lower()
+    pred_clean = str(pred).strip().lower()
+
+    if gt_clean == pred_clean.rstrip(".,"):
+        return True
+    
+    if gt_clean in pred_clean:
+        return True
+
+    if pred_clean in gt_clean:
+        return True
+    
+    if editdistance.eval(gt_clean, pred_clean.rstrip('.,')) <= 2:
+        return True
+
+    return False
+
+
 def is_correct(gt, pred, is_numerical, is_year):
     if is_numerical:
-        gt_num = extract_number(gt)
-        pred_num = extract_number(pred)
+        gt_num = float(gt.strip().replace(',', '').strip('%')) # no %
+        pred_num = extract_number(pred) # no %
         print(f"-----Extracted numbers: GT={gt_num}, Pred={pred_num}")
         if gt_num is None or pred_num is None:
             return False
         if is_year: # for year answers, allow absolute error of 1 year
             return abs(gt_num - pred_num) <= 1
         else: # allow 5% relative error for non-year numerical answers
-            return abs(gt_num - pred_num) / (abs(gt_num) + 1e-9) <= 0.05
+            candidates = build_gt_candidates(gt_num)
+            for c in candidates:
+                if within_tolerance(c, pred_num):
+                    return True
+            return False
+
     else: 
         pred_text = extract_text(pred)
         print(f"-----Extracted text: GT={gt}, Pred={pred_text}")
-        return str(gt).strip().lower() == str(pred_text).strip().lower()
+        return is_textual_correct(gt, pred_text)
 
 
 def main():

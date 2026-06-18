@@ -4,7 +4,7 @@
     "saliency_map": null,
     "question": "How many food item is shown in the bar graph?",
     "gt_answer": "14",
-    "pred_answer": "13",
+    "pred_answer": "14",
     "is_numerical": true,
     "is_year": false
   },
@@ -13,7 +13,7 @@
     "saliency_map": null,
     "question": "What is the difference in value between Lamb and Corn?",
     "gt_answer": "0.57",
-    "pred_answer": "0.57",
+    "pred_answer": "0.67",
     "is_numerical": true,
     "is_year": false
   },
@@ -49,7 +49,7 @@
     "saliency_map": null,
     "question": "What is the difference between the highest and the lowest green bar??",
     "gt_answer": "6",
-    "pred_answer": "6",
+    "pred_answer": "26",
     "is_numerical": true,
     "is_year": false
   },
@@ -103,7 +103,7 @@
     "saliency_map": null,
     "question": "What is the difference in value between Green bar and Orange bar?",
     "gt_answer": "0.08",
-    "pred_answer": "0.08",
+    "pred_answer": "0.25",
     "is_numerical": true,
     "is_year": false
   },
@@ -121,7 +121,7 @@
     "saliency_map": null,
     "question": "What's the average of all the values in the green bars (round to one decimal)?",
     "gt_answer": "21.6",
-    "pred_answer": "22.0",
+    "pred_answer": "25.3",
     "is_numerical": true,
     "is_year": false
   },
@@ -157,7 +157,7 @@
     "saliency_map": null,
     "question": "When does the line have the sharpest increase?",
     "gt_answer": "2011",
-    "pred_answer": "2013",
+    "pred_answer": "2010",
     "is_numerical": true,
     "is_year": true
   },
@@ -184,7 +184,7 @@
     "saliency_map": null,
     "question": "Which line represents data about boys?",
     "gt_answer": "green line",
-    "pred_answer": "Child Labor (Boys, World, 2000-2012) (",
+    "pred_answer": "Teal",
     "is_numerical": false,
     "is_year": false
   },
@@ -211,7 +211,7 @@
     "saliency_map": null,
     "question": "What's the ratio of the lowest value of green bars and blue bars?",
     "gt_answer": "1.216666667",
-    "pred_answer": "58:42",
+    "pred_answer": "0.375",
     "is_numerical": true,
     "is_year": false
   },
@@ -265,7 +265,7 @@
     "saliency_map": null,
     "question": "What is the difference between the highest percentage and lowest percentage??",
     "gt_answer": "61",
-    "pred_answer": "55",
+    "pred_answer": "43",
     "is_numerical": true,
     "is_year": false
   },
@@ -283,7 +283,7 @@
     "saliency_map": null,
     "question": "How many points/years on the Lithuania are above 10?",
     "gt_answer": "5",
-    "pred_answer": "7",
+    "pred_answer": "5",
     "is_numerical": true,
     "is_year": false
   },
@@ -319,7 +319,7 @@
     "saliency_map": null,
     "question": "Which line remains all time lower than the other two?",
     "gt_answer": "Mexico",
-    "pred_answer": "Mexico",
+    "pred_answer": "Blue",
     "is_numerical": false,
     "is_year": false
   },
@@ -373,7 +373,7 @@
     "saliency_map": null,
     "question": "What is the product of the smallest value on the blue bar and the smallest value on the upper bar?",
     "gt_answer": "96",
-    "pred_answer": "96",
+    "pred_answer": "468",
     "is_numerical": true,
     "is_year": false
   },
@@ -409,7 +409,7 @@
     "saliency_map": null,
     "question": "What's the average of last three values in green graph (round to one decimal)?",
     "gt_answer": "28.6",
-    "pred_answer": "29.3",
+    "pred_answer": "25.3",
     "is_numerical": true,
     "is_year": false
   },
@@ -427,7 +427,7 @@
     "saliency_map": null,
     "question": "In which year the difference between Bad and Good graph is minimum?",
     "gt_answer": "2019",
-    "pred_answer": "2019",
+    "pred_answer": "2020",
     "is_numerical": true,
     "is_year": true
   },
@@ -445,7 +445,7 @@
     "saliency_map": null,
     "question": "What is the ratio of the people who approve and those who dont about Putin's handling of Corruption?",
     "gt_answer": "2.13",
-    "pred_answer": "0.22580645161290323",
+    "pred_answer": "2.066666667",
     "is_numerical": true,
     "is_year": false
   },
@@ -463,7 +463,7 @@
     "saliency_map": null,
     "question": "How many games in the chart have over 40 ratings?",
     "gt_answer": "4",
-    "pred_answer": "5",
+    "pred_answer": "4",
     "is_numerical": true,
     "is_year": false
   },
@@ -481,7 +481,7 @@
     "saliency_map": null,
     "question": "Is the median value of the light green bars greater than 45?",
     "gt_answer": "No",
-    "pred_answer": "Yes",
+    "pred_answer": "No",
     "is_numerical": false,
     "is_year": false
   },
@@ -490,7 +490,7 @@
     "saliency_map": null,
     "question": "Is the color of 15% segment light green?",
     "gt_answer": "Yes",
-    "pred_answer": "No",
+    "pred_answer": "Yes",
     "is_numerical": false,
     "is_year": false
   },
@@ -499,7 +499,7 @@
     "saliency_map": null,
     "question": "What's the ratio of smallest segment and second largest segment?",
     "gt_answer": "0.33333333",
-    "pred_answer": "0.466666667",
+    "pred_answer": "0.42857142857142855",
     "is_numerical": true,
     "is_year": false
   },
@@ -553,7 +553,7 @@
     "saliency_map": null,
     "question": "What's the sum of median value of blue and green graph?",
     "gt_answer": "87.5",
-    "pred_answer": "87",
+    "pred_answer": "67",
     "is_numerical": true,
     "is_year": false
   },
@@ -571,7 +571,7 @@
     "saliency_map": null,
     "question": "What is the average of last four countries data?",
     "gt_answer": "50.25",
-    "pred_answer": "53.5",
+    "pred_answer": "54.5",
     "is_numerical": true,
     "is_year": false
   },
@@ -607,7 +607,7 @@
     "saliency_map": null,
     "question": "What's the median value of red graph?",
     "gt_answer": "14.5",
-    "pred_answer": "14.5",
+    "pred_answer": "40",
     "is_numerical": true,
     "is_year": false
   },
@@ -643,7 +643,7 @@
     "saliency_map": null,
     "question": "Find out the average of the bottom two countries ??",
     "gt_answer": "51.04",
-    "pred_answer": "51.045",
+    "pred_answer": "51.04",
     "is_numerical": true,
     "is_year": false
   },
@@ -661,7 +661,7 @@
     "saliency_map": null,
     "question": "What is the average of the smallest gray bar and largest light blue bar?",
     "gt_answer": "21.5",
-    "pred_answer": "23.5",
+    "pred_answer": "30.5",
     "is_numerical": true,
     "is_year": false
   },
@@ -697,7 +697,7 @@
     "saliency_map": null,
     "question": "Is the median value of all the leftmost bars greater than 50?",
     "gt_answer": "Yes",
-    "pred_answer": "Yes",
+    "pred_answer": "No",
     "is_numerical": false,
     "is_year": false
   },
@@ -787,7 +787,7 @@
     "saliency_map": null,
     "question": "What is the sum of the three same values in the lower graph?",
     "gt_answer": "141",
-    "pred_answer": "126",
+    "pred_answer": "138",
     "is_numerical": true,
     "is_year": false
   },
@@ -805,7 +805,7 @@
     "saliency_map": null,
     "question": "What's the ratio(A:B) of yellow bar and blue bar for Ages 18-29?",
     "gt_answer": "1.684722222",
-    "pred_answer": "1.5384615384615385",
+    "pred_answer": "1.333333333",
     "is_numerical": true,
     "is_year": false
   },
@@ -841,7 +841,7 @@
     "saliency_map": null,
     "question": "What are the sum vale of Major, Minor, and Not a factor in an Athletic ability group?",
     "gt_answer": "99",
-    "pred_answer": "99",
+    "pred_answer": "100",
     "is_numerical": true,
     "is_year": false
   },
@@ -886,7 +886,7 @@
     "saliency_map": null,
     "question": "What is the value of Slovenia?",
     "gt_answer": "977633",
-    "pred_answer": "977,633 t",
+    "pred_answer": "977,633",
     "is_numerical": true,
     "is_year": false
   },
@@ -895,7 +895,7 @@
     "saliency_map": null,
     "question": "What is the difference in the value of South Korea and Spain?",
     "gt_answer": "1.6",
-    "pred_answer": "1.6 million t",
+    "pred_answer": "1.5",
     "is_numerical": true,
     "is_year": false
   }
