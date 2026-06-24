@@ -34,10 +34,10 @@ def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
             "content": [
                 {"type": "text", "text": 
                 "You are an expert chart question answering assistant.\n"
-                "You will be given a chart image and a saliency map overlaid on the chart.\n"
+                "You will be given a chart image and a saliency map overlaid on the same chart.\n"
                 "The saliency map represents human attention when answering the question, highlighting regions humans are likely to focus on.\n"
-                "Prioritize information in highlighted regions when forming your answer.\n"
-                "Use only information in the chart. Do not use external knowledge or assumptions beyond the chart.\n"
+                "Use the saliency map as a helpful reference to identify potentially relevant regions, but verify all information directly from the chart image.\n"
+                "Answer the question only based on the given images. Do not use external knowledge or assumptions.\n"
                 "Return ONLY the final answer. Do not include explanation or reasoning.\n"
                 }
             ]
@@ -49,9 +49,9 @@ def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
                 {"type": "image", "image": chart_img},
                 {"type": "image", "image": heatmap_img},
                 {"type": "text", "text": 
-                "The first image is a chart.\n"
-                "The second image is a saliency map overlaid on the chart, indicating regions likely relevant to the question.\n\n"
-                f"Question: {question}\n\n"
+                "The first image is the chart.\n"
+                "The second image is the saliency map overlaid on the same chart, indicating regions likely relevant to the question.\n\n"
+                f"Answer this question based on these two images: {question}\n\n"
                 }
             ]
         }
@@ -62,8 +62,7 @@ def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
                 {"type": "text", "text": 
                 "You are an expert chart question answering assistant.\n"
                 "You will be given a chart image.\n"
-                "Your task is to answer questions using only information in the chart.\n"
-                "Do not use external knowledge or assumptions beyond the chart.\n"
+                "Answer the question only based on the given images. Do not use external knowledge or assumptions.\n"
                 "Return ONLY the final answer. Do not include explanation or reasoning.\n"
                 }
             ]
@@ -74,8 +73,7 @@ def build_prompt_zeroshot(question: str, chart_img, heatmap_img=None) -> list:
             "content": [
                 {"type": "image", "image": chart_img},
                 {"type": "text", "text": 
-                "Answer the question based only on the chart image.\n"
-                f"Question: {question}\n\n"
+                f"Answer this question based on the image: {question}\n\n"
                 }
             ]
         }
@@ -198,6 +196,7 @@ def run_inference(model, samples, train_samples, setting, use_saliency):
 
         if setting == "zeroshot":
             prompt = build_prompt_zeroshot(question, chart_img, heatmap_img if use_saliency else None)
+            print(f"heatmap for this question: {saliency_map}, original chart: {imgname}")
             predicted_answer = model.generate(prompt)
 
         elif setting == "fewshot":
@@ -229,11 +228,11 @@ def main():
     parser.add_argument("--model", choices=["llava15", "chartr1", "internvl", "qwen3vl", "bespokeminchart"], default="llava15")
     parser.add_argument("--setting", choices=["zeroshot", "fewshot"],  default="zeroshot")
     parser.add_argument("--use_saliency", action="store_true")
-    parser.add_argument("--max_samples",  type=int, default=MAX_SAMPLES)
+    parser.add_argument("--max_samples",  type=int, default=None)
     args = parser.parse_args()
 
     saliency_tag = "with_saliency" if args.use_saliency else "no_saliency"
-    output_path  = f"./updated/{args.model}_{args.setting}_{saliency_tag}.json"
+    output_path  = f"./result_jsons/{args.model}_{args.setting}_{saliency_tag}.json"
 
     with open(TEST_JSON, "r") as f:
         samples = json.load(f)[:args.max_samples] # load test samples, samples[0]["imgname"] = "1.png"
@@ -246,7 +245,7 @@ def main():
     model   = load_model(args.model)
     results = run_inference(model, samples, train_samples, args.setting, args.use_saliency)
 
-    Path("./updated").mkdir(parents=True, exist_ok=True)
+    Path("./result_jsons").mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"Saved to {output_path}")
@@ -255,4 +254,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# python inference_random.py --model bespokeminchart  --setting zeroshot --use_saliency
+# python inference_random.py --model qwen3vl  --setting zeroshot --use_saliency

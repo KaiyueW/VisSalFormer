@@ -12,12 +12,10 @@ def extract_number(text: str) -> float:
         text = first_line.split('=')[-1].strip() # if the answer is in format like "Answer = 42", extract the part after "="
     else:
         text = first_line.strip() # clean whitespace
-    print(f"text {text}")
 
     try:
         cleaned = text.replace(',', '').strip('%')
         result = sympify(cleaned)
-        print(f"result {result}")
         if result.is_number:
             return float(result)
     except (SympifyError, TypeError):

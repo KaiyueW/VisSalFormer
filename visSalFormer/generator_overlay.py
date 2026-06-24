@@ -139,7 +139,7 @@ if __name__ == '__main__':
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--img_dir", type=str, default='train/png')
     parser.add_argument("--json_path", type=str, default='train/train_human.json')
-    parser.add_argument("--max_samples", type=int, default=100)
+    parser.add_argument("--max_samples", type=int, default=None)
     parser.add_argument("--output_dir", type=str, default='./ChartQA_train')
     args = vars(parser.parse_args())
 
