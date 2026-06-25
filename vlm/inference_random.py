@@ -17,11 +17,11 @@ from models import load_model
 
 # Paths 
 TRAIN_JSON      = "../data/ChartQA_data/train/train_human_preprocessed.json" # Note: we use the same test json for training samples in few-shot setting, but we will retrieve different questions for the same chart as examples.
-TEST_JSON       = "../data/ChartQA_data/test/test_human_preprocessed.json"
+TEST_JSON       = "../data/ChartQA_data/test/test_augmented_preprocessed.json"
 TRAIN_IMG_DIR   = "../data/ChartQA_data/train/png"
 TEST_IMG_DIR    = "../data/ChartQA_data/test/png"
 TRAIN_HEATMAP   = "../data/saliency_maps/ChartQA_train"
-TEST_HEATMAP    = "../data/saliency_maps/ChartQA_test" # the saliency map dir for inference, you can change to the one you want.
+TEST_HEATMAP    = "../data/augmented" # the saliency map dir for inference, you can change to the one you want.
 MAX_SAMPLES     = 100
 
 
@@ -232,7 +232,7 @@ def main():
     args = parser.parse_args()
 
     saliency_tag = "with_saliency" if args.use_saliency else "no_saliency"
-    output_path  = f"./result_jsons/{args.model}_{args.setting}_{saliency_tag}.json"
+    output_path  = f"./result_jsons/{args.model}_{args.setting}_{saliency_tag}_aug.json"
 
     with open(TEST_JSON, "r") as f:
         samples = json.load(f)[:args.max_samples] # load test samples, samples[0]["imgname"] = "1.png"

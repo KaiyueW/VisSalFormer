@@ -20,7 +20,7 @@ TEST_JSON       = "../data/ChartQA_data/test/test_human_preprocessed.json"
 TRAIN_IMG_DIR   = "../data/ChartQA_data/test/png"
 TEST_IMG_DIR    = "../data/ChartQA_data/test/png"
 TRAIN_HEATMAP   = "../data/saliency_maps/ChartQA_test"
-TEST_HEATMAP    = "../testingggg/saliency_haha_0.5" # the saliency map dir for inference, you can change to the one you want.
+TEST_HEATMAP    = "../data/hhhhh" # the saliency map dir for inference, you can change to the one you want.
 MAX_SAMPLES     = 30
 
 
@@ -164,11 +164,11 @@ def run_inference(model, samples, train_samples, setting, use_saliency):
         if setting == "zeroshot":
             prompt = build_prompt_zeroshot(question, chart_img, heatmap_img if use_saliency else None)
             #
-            print(f"Sample {i+1} | {imgname} | setting: {setting}")
-            print(os.path.join(TEST_HEATMAP, saliency_map))
-            print(f"{'-'*60}")
-            print(prompt)
-            print(f"{'='*60}")
+            # print(f"Sample {i+1} | {imgname} | setting: {setting}")
+            # print(os.path.join(TEST_HEATMAP, saliency_map))
+            # print(f"{'-'*60}")
+            # print(prompt)
+            # print(f"{'='*60}")
             #
             predicted_answer = model.generate(prompt)
 
@@ -212,7 +212,7 @@ def main():
     output_path  = f"./result_jsons/{args.model}_{args.setting}_{saliency_tag}_overlay.json"
 
     with open(TEST_JSON, "r") as f:
-        samples = json.load(f)[:args.max_samples] # load test samples, samples[0]["imgname"] = "1.png"
+        samples = json.load(f) # load test samples, samples[0]["imgname"] = "1.png"
 
     train_samples = []
     if args.setting == "fewshot":
@@ -231,4 +231,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# python inference.py --model chartr1  --setting zeroshot --use_saliency
+# python inference_only_overlay.py --model qwen3vl --setting zeroshot --use_saliency
