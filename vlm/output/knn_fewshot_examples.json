@@ -1,0 +1,112 @@
+{
+  "41699051005347.png_How many food item is shown in the bar graph?": [
+    {
+      "imgname": "10095.png",
+      "query": "How many values are below 40 in Unfavorable graph?",
+      "label": "6"
+    },
+    {
+      "imgname": "10183.png",
+      "query": "How many intercepting point(s) is/are there?",
+      "label": "1"
+    },
+    {
+      "imgname": "10154.png",
+      "query": "What is the sum of making progress ,losing ground and same in the year 2011?",
+      "label": "99"
+    },
+    {
+      "imgname": "10184.png",
+      "query": "Which line contains smaller values across all years?",
+      "label": "Unfavorable"
+    }
+  ],
+  "41699051005347.png_What is the difference in value between Lamb and Corn?": [
+    {
+      "imgname": "10095.png",
+      "query": "Is the value of Favorable 38 in 2015?",
+      "label": "Yes"
+    },
+    {
+      "imgname": "10149.png",
+      "query": "What is the sum favourable  value in the year 2014 and 2015?",
+      "label": "95"
+    },
+    {
+      "imgname": "10154.png",
+      "query": "What is the sum of making progress ,losing ground and same in the year 2011?",
+      "label": "99"
+    },
+    {
+      "imgname": "10183.png",
+      "query": "How many intercepting point(s) is/are there?",
+      "label": "1"
+    }
+  ],
+  "41810321001157.png_How many bars are shown in the chart?": [
+    {
+      "imgname": "10095.png",
+      "query": "How many values are below 40 in Unfavorable graph?",
+      "label": "6"
+    },
+    {
+      "imgname": "10183.png",
+      "query": "How many intercepting point(s) is/are there?",
+      "label": "1"
+    },
+    {
+      "imgname": "10184.png",
+      "query": "Which line contains smaller values across all years?",
+      "label": "Unfavorable"
+    },
+    {
+      "imgname": "10154.png",
+      "query": "What is the sum of making progress ,losing ground and same in the year 2011?",
+      "label": "99"
+    }
+  ],
+  "41810321001157.png_Is the sum value of Madagascar more then Fiji?": [
+    {
+      "imgname": "10095.png",
+      "query": "Is the value of Favorable 38 in 2015?",
+      "label": "Yes"
+    },
+    {
+      "imgname": "10154.png",
+      "query": "What is the sum of making progress ,losing ground and same in the year 2011?",
+      "label": "99"
+    },
+    {
+      "imgname": "10149.png",
+      "query": "What is the sum favourable  value in the year 2014 and 2015?",
+      "label": "95"
+    },
+    {
+      "imgname": "10183.png",
+      "query": "How many intercepting point(s) is/are there?",
+      "label": "1"
+    }
+  ],
+  "8127.png_What's the value of the lowest bar?": [
+    {
+      "imgname": "10095.png",
+      "query": "How many values are below 40 in Unfavorable graph?",
+      "label": "6"
+    },
+    {
+      "imgname": "10184.png",
+      "query": "Which line contains smaller values across all years?",
+      "label": "Unfavorable"
+    },
+    {
+      "imgname": "10184.png",
+      "query": "Deduct the most unfavorable view from the most favorable view?",
+      "label": "49"
+    },
+    {
+      "imgname": "10183.png",
+      "query": "How many intercepting point(s) is/are there?",
+      "label": "1"
+    }
+  ]
+}
