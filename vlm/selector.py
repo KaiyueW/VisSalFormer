@@ -10,8 +10,6 @@ from torch.utils.data import Dataset, DataLoader
 import open_clip
 from sentence_transformers import SentenceTransformer
 import logging
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning)
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +18,7 @@ class ChartQATrainDataset(Dataset): #dataset loader
     def __init__(self, chart_dir, json_path):
         self.chart_dir = chart_dir
         with open(json_path, "r") as f:
-            self.samples = json.load(f)[:10]
+            self.samples = json.load(f)
 
     def __len__(self):
         return len(self.samples)
@@ -61,7 +59,7 @@ class ChartQAKNNRetriever:
         train_dataset,
         device,
         batch_size=32,
-        vision_encoder_path="ViT-L-14",
+        vision_encoder_path="ViT-L-14-quickgelu",
         vision_encoder_pretrained="openai",
         text_model_name="sentence-transformers/sentence-t5-base",
         cached_image_features=None,
@@ -79,11 +77,11 @@ class ChartQAKNNRetriever:
         )
         self.image_model = vision_encoder.to(self.device).eval()
         self.image_processor = image_processor
-        logger.info("-----Loaded CLIP image encoder.")
+        print("-----Loaded CLIP image encoder.")
 
         # ---- text encoder ----
         self.text_model = SentenceTransformer(text_model_name).to(self.device)
-        logger.info("-----Loaded SentenceTransformer text encoder.")
+        print("-----Loaded SentenceTransformer text encoder.")
 
         # ---- precompute image features for the whole training pool ----
         if cached_image_features is None:
@@ -100,7 +98,7 @@ class ChartQAKNNRetriever:
             collate_fn=custom_collate_fn,
             num_workers=8,
         )
-        logger.info("-----Precomputing training image features.")
+        print("-----Precomputing training image features.")
         with torch.no_grad():
             for batch in tqdm(loader, desc="Precomputing training image features"):
                 imgs = torch.stack(
@@ -143,7 +141,6 @@ class ChartQAKNNRetriever:
             topk = min(self.image_topk, img_sim.shape[0]) # min of desired topk and total number of training samples
             top_indices = img_sim.argsort(descending=True)[:topk]
             candidates = [self.dataset[i] for i in top_indices.tolist()]
-            logger.info("-----Step 1: Selected candidates by image similarity.")
 
             # ---- Stage 2: re-rank the candidates by text similarity ----
             query_text_feat = self.text_model.encode(
@@ -162,7 +159,6 @@ class ChartQAKNNRetriever:
             num_examples = min(num_examples, text_sim.shape[0]) # should be 200 candidates.
             final_indices = text_sim.argsort(descending=True)[:num_examples]
             final_indices = final_indices.tolist()
-            logger.info("-----Step 2: Selected candidates by text similarity.")
 
             if do_reverse:
                 final_indices = list(reversed(final_indices))
@@ -192,7 +188,7 @@ def run(
 
     cached_features = None
     if cached_image_features is not None and os.path.exists(cached_image_features):
-        logger.info(f"Loading cached training image features from {cached_image_features}")
+        print(f"Loading cached training image features from {cached_image_features}")
         cached_features = torch.load(cached_image_features)
 
     retriever = ChartQAKNNRetriever(
@@ -210,7 +206,7 @@ def run(
  
 
     with open(test_json, "r") as f:
-        test_samples = json.load(f)[:5]
+        test_samples = json.load(f)
 
     results = {}
     for sample in tqdm(test_samples, desc="Retrieving few-shot examples for test set"):
@@ -224,7 +220,7 @@ def run(
         )
 
         # keep only the identifying fields, not PIL images, so the json stays small
-        results[f"{sample['imgname']}_{sample['query']}"] = [
+        results[sample['saliency_map']] = [
             {"imgname": ex["imgname"], "query": ex["query"], "label": ex["label"]}
             for ex in examples
         ]
@@ -233,23 +229,20 @@ def run(
     with open(output_json, "w") as f:
         json.dump(results, f, indent=2)
 
-    logger.info(f"Wrote kNN few-shot examples for {len(results)} test samples to {output_json}")
+    print(f"Wrote kNN few-shot examples for {len(results)} test samples to {output_json}")
     return results
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    logging.getLogger("httpx").setLevel(logging.WARNING)
-    logging.getLogger("huggingface_hub").setLevel(logging.WARNING)
 
     run(
         train_chart_dir="../data/ChartQA_data/train/png",
         train_json="../data/ChartQA_data/train/train_human_preprocessed.json",
         test_chart_dir="../data/ChartQA_data/test/png",
         test_json="../data/ChartQA_data/test/test_human_preprocessed.json",
-        output_json="output/knn_fewshot_examples.json",
-        num_shots=4,
+        output_json="output/openclip_knn_fewshot_examples.json",
+        num_shots=8,
         image_topk=200,
-        cached_image_features="train_image_feats.pt",
-        save_image_features="train_image_feats.pt",
+        cached_image_features="openclip_train_image_feats.pt",
+        save_image_features="openclip_train_image_feats.pt",
     )

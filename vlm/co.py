@@ -36,7 +36,7 @@ def number_and_save_json(input_path, output_path):
         print("Error: Failed to decode JSON. Check if the file is well-formed.")
 
 # Define your paths here
-input_json_file = "../data/ChartQA_data/test/test_human_preprocessed.json"
-output_json_file = "numbered_dataset.json"
+input_json_file = "../data/ChartQA_data/train/train_human_preprocessed.json"
+output_json_file = "numbered_train_dataset.json"
 
 number_and_save_json(input_json_file, output_json_file)
