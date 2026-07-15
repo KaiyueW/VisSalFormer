@@ -254,5 +254,5 @@ def main():
 if __name__ == "__main__":
     main()
 
-# python inference.py --model internvl  --setting fewshot --num_shot 8
-# python evaluation.py --result_path ./fewshots/qwen3vl_fewshot_no_saliency_openclip_3.json
+# python inference.py --model bespokeminchart  --setting fewshot --num_shot 8
+# python evaluation.py --result_path ./fewshots/bespokeminchart_fewshot_no_saliency_openclip_8.json
