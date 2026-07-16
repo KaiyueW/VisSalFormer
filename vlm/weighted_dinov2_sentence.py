@@ -9,7 +9,8 @@ from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader
 import logging
 
-from transformers import AutoProcessor, AutoModel
+from transformers import AutoImageProcessor, AutoModel
+from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,8 @@ class ChartQAKNNRetriever:
         train_dataset,
         device,
         batch_size=32,
-        vision_encoder_path="google/siglip-base-patch16-224",
+        vision_encoder_path="facebook/dinov2-base",
+        text_model_name="sentence-transformers/sentence-t5-base",
         cached_image_features=None,
         cached_text_features=None,          
         w1=0.5,                             
@@ -69,9 +71,15 @@ class ChartQAKNNRetriever:
         self.w1 = w1                       
         self.w2 = w2                       
 
-        self.processor = AutoProcessor.from_pretrained(vision_encoder_path)
-        self.model = AutoModel.from_pretrained(vision_encoder_path).to(self.device).eval()
-        print(f"-----Loaded SigLIP model ({vision_encoder_path}) for image + text encoding.")
+        # ---- image encoder ----
+        self.image_processor = AutoImageProcessor.from_pretrained(vision_encoder_path)
+        self.image_model = AutoModel.from_pretrained(vision_encoder_path).to(self.device).eval()
+        print(f"-----Loaded DINOv2 image encoder ({vision_encoder_path}).")
+
+
+        # ---- text encoder ----
+        self.text_model = SentenceTransformer(text_model_name).to(self.device)
+        print("-----Loaded SentenceTransformer text encoder.")
 
         # ---- precompute image features for the whole training pool ----
         if cached_image_features is None:
@@ -85,34 +93,16 @@ class ChartQAKNNRetriever:
         else:
             self.text_features = cached_text_features
 
-    def _encode_images_siglip(self, images):
-        inputs = self.processor(images=images, return_tensors="pt").to(self.device)
+    def _encode_images_dinov2(self, images):
+        inputs = self.image_processor(images=images, return_tensors="pt").to(self.device)
         with torch.no_grad():
-            out = self.model.get_image_features(**inputs)  # [Batch_size, Dimension]
-        feats = out.pooler_output 
-        feats = feats / feats.norm(dim=-1, keepdim=True)
-        return feats.detach().cpu()
-
-    def _encode_texts_siglip(self, texts, batch_size=None):
-        batch_size = batch_size or self.text_batch_size
-        all_feats = []
-        for i in range(0, len(texts), batch_size):
-            batch = texts[i:i + batch_size]
-            inputs = self.processor(
-                text=batch,
-                padding="max_length",
-                truncation=True,
-                return_tensors="pt",
-            ).to(self.device)
-            with torch.no_grad():
-                out = self.model.get_text_features(**inputs)
-                feats = out.pooler_output
-            all_feats.append(feats.detach().cpu())
-        feats = torch.cat(all_feats, dim=0)
-        feats = feats / feats.norm(dim=-1, keepdim=True)
-        return feats
+            outputs = self.image_model(**inputs)
+        cls_feats = outputs.last_hidden_state[:, 0, :]  # get the CLS token at the very front [0], with shape [Batch_size, Dimension]
+        cls_feats = cls_feats / cls_feats.norm(dim=-1, keepdim=True)
+        return cls_feats.detach().cpu()
 
     def _precompute_image_features(self):
+        """Encode every training image and cache the normalized feature matrix [Num_train, D]."""
         features = []
         loader = DataLoader(
             self.dataset,
@@ -123,14 +113,19 @@ class ChartQAKNNRetriever:
         print("-----Precomputing training image features.")
         with torch.no_grad():
             for batch in tqdm(loader, desc="Precomputing training image features"):
-                feats = self._encode_images_siglip(batch["image"])
+                feats = self._encode_images_dinov2(batch["image"])
                 features.append(feats)
-        return torch.cat(features)
+        return torch.cat(features) #concat all batches into a single tensor of shape [N_train, D]
 
     def _precompute_text_features(self):
         print("-----Precomputing training text features.")
         all_queries = [self.dataset[i]["query"] for i in range(len(self.dataset))]
-        return self._encode_texts_siglip(all_queries)
+        all_text_feats = self.text_model.encode(
+                all_queries, convert_to_tensor=True, show_progress_bar=False, device=self.device
+            )
+        all_text_feats =  all_text_feats / all_text_feats.norm(dim=-1, keepdim=True)
+
+        return all_text_feats.cpu()
 
     def save_image_features_to_path(self, path):
         torch.save(self.image_features, path)
@@ -145,11 +140,15 @@ class ChartQAKNNRetriever:
         """
         with torch.no_grad():
             # ---- image similarity over the whole training pool ----
-            query_img_feat = self._encode_images_siglip([test_image])          # [1, D_img]
+            query_img_feat = self._encode_images_dinov2([test_image])          # [1, D_img]
             img_sim = (query_img_feat @ self.image_features.T).squeeze(0)      # [N_train]
 
             # ---- text similarity over the whole training pool ----
-            query_text_feat = self._encode_texts_siglip([test_query])          # [1, D_text]
+            query_text_feat = self.text_model.encode(
+                [test_query], convert_to_tensor=True, show_progress_bar=False, device=self.device
+            )
+            query_text_feat = query_text_feat / query_text_feat.norm(dim=-1, keepdim=True)          # [1, D_text]
+            query_text_feat = query_text_feat.cpu()
             text_sim = (query_text_feat @ self.text_features.T).squeeze(0)     # [N_train]
 
             # Both similarity vectors are already cosine similarities in [-1, 1] since both feature sets are L2-normalized,
@@ -251,12 +250,12 @@ if __name__ == "__main__":
         train_json="../data/ChartQA_data/train/train_human_preprocessed.json",
         test_chart_dir="../data/ChartQA_data/test/png",
         test_json="../data/ChartQA_data/test/test_human_preprocessed.json",
-        output_json="output/weighted_siglip_siglip_fewshot_examples.json",
+        output_json="output/weighted_dinov2_sentencetransformer_fewshot_examples.json",
         num_shots=8,
-        cached_image_features="siglip_train_image_feats.pt",
-        save_image_features="siglip_train_image_feats.pt",
-        cached_text_features="siglip_train_text_feats.pt",
-        save_text_features="siglip_train_text_feats.pt", 
+        cached_image_features="dinov2_train_image_feats.pt",
+        save_image_features="dinov2_train_image_feats.pt",
+        cached_text_features="sentence_transformer_train_text_feats.pt",
+        save_text_features="sentence_transformer_train_text_feats.pt", 
         w1=0.5, 
         w2=0.5,  
     )
